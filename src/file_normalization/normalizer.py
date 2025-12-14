@@ -8,6 +8,7 @@ from file_normalization.dates import (
     extract_date_from_filename,
     format_date,
     get_file_creation_date,
+    strip_date_from_filename,
     strip_date_prefix,
 )
 from file_normalization.names import (
@@ -36,7 +37,10 @@ def normalize_filename(
     """
     name, extension = split_name_and_extension(filename)
     existing_date = extract_date_from_filename(name)
-    name_without_date = strip_date_prefix(name)
+    if existing_date:
+        name_without_date = strip_date_from_filename(name)
+    else:
+        name_without_date = strip_date_prefix(name)
     clean_name = sanitize_name(name_without_date)
     extension = extension.lower()
 

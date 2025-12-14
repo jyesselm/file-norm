@@ -77,6 +77,20 @@ def strip_date_prefix(filename: str) -> str:
     return filename
 
 
+def strip_date_from_filename(filename: str) -> str:
+    """Remove date pattern from anywhere in the filename.
+
+    Args:
+        filename: The filename to clean.
+
+    Returns:
+        The filename with date removed.
+    """
+    for pattern, _ in DATE_PATTERNS:
+        filename = re.sub(pattern, "", filename)
+    return filename
+
+
 class DateFormat:
     """Date format options."""
 

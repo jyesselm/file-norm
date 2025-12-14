@@ -105,7 +105,11 @@ def resolve_name_conflict(new_path: Path, original_path: Path) -> Path:
     Returns:
         A path that doesn't conflict with existing files.
     """
-    if not new_path.exists() or new_path == original_path:
+    if not new_path.exists():
+        return new_path
+    # Use samefile() for case-insensitive filesystems (e.g., macOS)
+    # where paths differ only in case but point to the same file
+    if new_path.samefile(original_path):
         return new_path
 
     counter = 1

@@ -95,6 +95,37 @@ def normalize_file(
     return (filepath, new_path)
 
 
+def normalize_directory(
+    dirpath: Path,
+    dry_run: bool = False,
+) -> Optional[tuple[Path, Path]]:
+    """Normalize a directory's name on disk.
+
+    Args:
+        dirpath: Path to the directory to rename.
+        dry_run: If True, don't actually rename.
+
+    Returns:
+        Tuple of (old_path, new_path) if renamed, None if unchanged.
+    """
+    if not dirpath.is_dir():
+        return None
+
+    # Sanitize the directory name (no extension handling needed)
+    new_name = sanitize_name(dirpath.name)
+    new_path = dirpath.parent / new_name
+
+    if new_path == dirpath:
+        return None
+
+    new_path = resolve_name_conflict(new_path, dirpath)
+
+    if not dry_run:
+        dirpath.rename(new_path)
+
+    return (dirpath, new_path)
+
+
 def resolve_name_conflict(new_path: Path, original_path: Path) -> Path:
     """Resolve naming conflicts by adding a counter suffix.
 

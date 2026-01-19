@@ -51,6 +51,31 @@ class TestExtractDateFromFilename:
         result = extract_date_from_filename("2024-13-45-document.pdf")
         assert result is None
 
+    def test_single_digit_month_day_middle(self) -> None:
+        """Test extraction of M-D-YYYY format from middle of filename."""
+        result = extract_date_from_filename("pka-interesting-motifs-12-1-2025.pdf")
+        assert result == datetime(2025, 12, 1)
+
+    def test_single_digit_month_and_day(self) -> None:
+        """Test extraction of M-D-YYYY with single digit month and day."""
+        result = extract_date_from_filename("document-1-5-2025.pdf")
+        assert result == datetime(2025, 1, 5)
+
+    def test_single_digit_day_only(self) -> None:
+        """Test extraction of MM-D-YYYY format."""
+        result = extract_date_from_filename("document-1-15-2025.pdf")
+        assert result == datetime(2025, 1, 15)
+
+    def test_yyyy_m_d_format(self) -> None:
+        """Test extraction of YYYY-M-D format with single digits."""
+        result = extract_date_from_filename("2025-1-5-document.pdf")
+        assert result == datetime(2025, 1, 5)
+
+    def test_yyyy_m_d_underscore_format(self) -> None:
+        """Test extraction of YYYY_M_D format with single digits."""
+        result = extract_date_from_filename("2025_1_5_document.pdf")
+        assert result == datetime(2025, 1, 5)
+
 
 class TestStripDatePrefix:
     """Tests for strip_date_prefix function."""

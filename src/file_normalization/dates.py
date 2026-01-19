@@ -7,20 +7,20 @@ from typing import Optional
 
 # Patterns for extracting existing dates from filenames
 DATE_PATTERNS = [
-    (r"(\d{4})-(\d{2})-(\d{2})", "%Y-%m-%d"),  # 2024-01-15
-    (r"(\d{4})_(\d{2})_(\d{2})", "%Y_%m_%d"),  # 2024_01_15
+    (r"(\d{4})-(\d{1,2})-(\d{1,2})", "%Y-%m-%d"),  # 2024-01-15, 2024-1-5
+    (r"(\d{4})_(\d{1,2})_(\d{1,2})", "%Y_%m_%d"),  # 2024_01_15, 2024_1_5
     (r"(\d{4})(\d{2})(\d{2})", "%Y%m%d"),  # 20240115
-    (r"(\d{2})-(\d{2})-(\d{4})", "%m-%d-%Y"),  # 01-15-2024
-    (r"(\d{2})_(\d{2})_(\d{4})", "%m_%d_%Y"),  # 01_15_2024
+    (r"(\d{1,2})-(\d{1,2})-(\d{4})", "%m-%d-%Y"),  # 01-15-2024, 1-5-2024, 12-1-2025
+    (r"(\d{1,2})_(\d{1,2})_(\d{4})", "%m_%d_%Y"),  # 01_15_2024, 1_5_2024
 ]
 
 # Patterns to strip date prefixes from filenames
 STRIP_PATTERNS = [
-    r"^\d{4}-\d{2}-\d{2}[-_\s]*",
-    r"^\d{4}_\d{2}_\d{2}[-_\s]*",
+    r"^\d{4}-\d{1,2}-\d{1,2}[-_\s]*",
+    r"^\d{4}_\d{1,2}_\d{1,2}[-_\s]*",
     r"^\d{8}[-_\s]*",
-    r"^\d{2}-\d{2}-\d{4}[-_\s]*",
-    r"^\d{2}_\d{2}_\d{4}[-_\s]*",
+    r"^\d{1,2}-\d{1,2}-\d{4}[-_\s]*",
+    r"^\d{1,2}_\d{1,2}_\d{4}[-_\s]*",
 ]
 
 
@@ -55,7 +55,18 @@ def extract_date_from_filename(filename: str) -> Optional[datetime]:
         if not match:
             continue
         try:
-            date_str = "".join(match.groups())
+            groups = match.groups()
+            # Zero-pad components based on format to avoid strptime ambiguity
+            if date_format.startswith("%Y"):
+                # YYYY-MM-DD format: year, month, day
+                year, month, day = groups
+                date_str = f"{year}{month.zfill(2)}{day.zfill(2)}"
+            elif date_format.startswith("%m"):
+                # MM-DD-YYYY format: month, day, year
+                month, day, year = groups
+                date_str = f"{month.zfill(2)}{day.zfill(2)}{year}"
+            else:
+                date_str = "".join(groups)
             clean_format = date_format.replace("-", "").replace("_", "")
             return datetime.strptime(date_str, clean_format)
         except ValueError:
